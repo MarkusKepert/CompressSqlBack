@@ -3,7 +3,7 @@
 $LogName = “SQLBaktoZip_" + $(get-date -f yyyy-MM-dd) +  ".log”
 $LogPath = $PSScriptRoot
 $Days = 4
-$7zPath = $PSScriptRoot + "7za.exe"
+$7zPath = $PSScriptRoot + "\" + 7za.exe"
 $LogPathAndFileName  = $LogPath + $LogName
 
 Start-Log -LogPath $LogPath -LogName $LogName -ScriptVersion “1.0”
@@ -11,9 +11,6 @@ Start-Log -LogPath $LogPath -LogName $LogName -ScriptVersion “1.0”
 Set-Alias sz (Join-Path -Path $PSScriptRoot -ChildPath "7za.exe")
 
 Write-LogInfo -LogPath $LogPathAndFileName -Message "Start ZIPing of bak and tran files" -TimeStamp
-
-##$path = "C:\install\sqlbackup\7za.exe "
-
 
 
 get-childitem -recurse |
