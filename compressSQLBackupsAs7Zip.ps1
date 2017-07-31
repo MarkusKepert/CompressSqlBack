@@ -1,11 +1,14 @@
 ﻿Import-Module -Name PSLogging
 
 $LogName = “SQLBaktoZip_" + $(get-date -f yyyy-MM-dd) +  ".log”
-$LogPath = “C:\install\sqlbackup\”
+$LogPath = $PSScriptRoot
+$Days = 4
+$7zPath = $PSScriptRoot + "7za.exe"
 $LogPathAndFileName  = $LogPath + $LogName
 
 Start-Log -LogPath $LogPath -LogName $LogName -ScriptVersion “1.0”
 
+Set-Alias sz (Join-Path -Path $PSScriptRoot -ChildPath "7za.exe")
 
 Write-LogInfo -LogPath $LogPathAndFileName -Message "Start ZIPing of bak and tran files" -TimeStamp
 
@@ -20,7 +23,7 @@ foreach {
 
     Write-LogInfo -LogPath $LogPathAndFileName -Message ("zip file: " + $_.fullname) -TimeStamp
 
-    C:\install\sqlbackup\7za.exe a ($_.fullname -replace "(bak|trn)", "7z") $_.fullname | set out 
+    & sz a ($_.fullname -replace "(bak|trn)", "7z") $_.fullname | set out 
     ## $ok = ($out -like '*Everything is Ok*')
     Write-LogInfo -LogPath $LogPathAndFileName -Message ("zip result: " + $out) -TimeStamp
     $ok = ($out -like '*Everything is Ok*')
@@ -30,7 +33,7 @@ foreach {
         {
           ## testing archive 
            Write-LogInfo -LogPath $LogPathAndFileName -Message ("test 7zip file: " + $_.Name) -TimeStamp
-          C:\install\sqlbackup\7za.exe t ($_.fullname -replace "(bak|trn)", "7z") $_.fullname | set out 
+          & sz t ($_.fullname -replace "(bak|trn)", "7z") $_.fullname | set out 
           ## $ok = ($out -like '*Everything is Ok*')
           $ok = $LASTEXITCODE -eq 0
           if ($ok)
@@ -65,7 +68,7 @@ foreach {
 
             ## testing archive
           Write-LogInfo -LogPath $LogPathAndFileName -Message ("test 7zip file: " + $_.Name) -TimeStamp
-          C:\install\sqlbackup\7za.exe t ($_.fullname -replace "(bak|trn)", "7z") $_.fullname | set out 
+          & sz t ($_.fullname -replace "(bak|trn)", "7z") $_.fullname | set out 
           $ok = $out -like '*Everything is Ok*'
           if ($ok)
                 {
@@ -86,8 +89,8 @@ foreach {
 
 }
 
-$limit = (Get-Date).AddDays(-4)
-$path = "C:\install\sqlbackup\sqlcl7\"
+$limit = (Get-Date).AddDays(-1*$Days)
+$path = $PSScriptRoot
 
 # Delete files older than the $limit.
 Write-LogInfo -LogPath $LogPathAndFileName -Message ("del old files ") -TimeStamp
